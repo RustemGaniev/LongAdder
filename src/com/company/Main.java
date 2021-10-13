@@ -1,27 +1,23 @@
 package com.company;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.IntStream;
-
 public class Main {
-
 
     public static void main(String[] args) throws InterruptedException {
 
         Shop shop = new Shop();
+        Thread shop1 = new Thread(null,() -> shop.shopProfit(),"Первый магазин");
+        Thread shop2 = new Thread(null,() -> shop.shopProfit(),"Второй магазин");
+        Thread shop3 = new Thread(null,() -> shop.shopProfit(),"Третийй магазин");
 
-        ExecutorService poolProfit = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        LongAdder totalProfit = new LongAdder();
-        IntStream.range(0, 3)
-                .forEach(i -> poolProfit.submit(() -> totalProfit.add(shop.call())));
-        poolProfit.awaitTermination(3, TimeUnit.SECONDS);
-        System.out.println("\n Сумма выручки составила: " + totalProfit.sum());
-        poolProfit.shutdown();
+        shop1.start();
+        shop2.start();
+        shop3.start();
+
+        shop1.join();
+        shop2.join();
+        shop3.join();
+
+        System.out.printf("\n Сумма выручки со всех магазинов сотавила %d рублей \n", shop.getTotal());
     }
-
-
 }
 
